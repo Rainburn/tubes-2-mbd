@@ -1,12 +1,14 @@
-# import from simple locking
+from simple_locking import *
 # import from occ
 # import from mvcc
 
 file = open("data-input.txt", "r")
-arr = file.read().split("; ")
+myfile = file.read()
+arr = myfile.split("; ")
 
 array_transaksi = []
 for data in arr:
+    data = str(data)
     jenis = data[0]
     if jenis != "C":
         item = data[-2]
@@ -17,12 +19,22 @@ for data in arr:
 
     array_transaksi.append((jenis, transaksi, item))
 
-print(array_transaksi)
+print(myfile)
 file.close()
 print("Pilihan input :\n1. Simple Locking\n2. OCC\n3. MVCC")
+
 inputUser = str(input("Input : "))
-# if inputUser=="1":
+
+if inputUser == "1":
+    array_hasil = execute(array_transaksi)
 
 # else if inputUser=="2":
 
 # else :
+
+
+for jenis2, item2, transaksi2 in array_hasil:
+    if jenis2 != "C":
+        print(jenis2+item2+"("+transaksi2+"); ", end="")
+    else:
+        print(jenis2+item2+"; ", end="")
