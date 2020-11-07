@@ -16,12 +16,11 @@ for data in arr:
     array_transaksi.append((jenis, transaksi, item))
 file.close()
 
-print(array_transaksi)
-
+print(myfile)
 def occ(array_transaksi):
   print("OCC")
   base_array = array_transaksi.copy()
-  arr_num = sorted(getNumTransaction(array_transaksi))
+  arr_num = getNumTransaction(array_transaksi)
   arr_TS = getArrTS(arr_num, array_transaksi)
   arr_operation = getTransactionOperation(array_transaksi, arr_num)
 
@@ -30,16 +29,16 @@ def occ(array_transaksi):
     print('Transaksi :', x)
     isValidThisTrans = isValidTransaction(array_transaksi, x, arr_TS, arr_num, arr_operation)
     if(isValidThisTrans):
-      print("Transaksi berhasil")
+      print("Hasil : Transaksi berhasil")
     else:
-      print("Transaksi gagal")
+      print("Hasil : Transaksi gagal")
     print("")
 
 def isValidTransaction(arr, num, arr_TS, arr_num, arr_operation):
   isCurrentValid = True
   check_queue = []
   for x in arr_TS:
-    if(int(x[0]) < int(num)):
+    if(int(x[3]) < arr_TS[arr_num.index(num)][3]):
       check_queue.append(x)
 
   # Check for current transaction to all transaction before
@@ -57,7 +56,7 @@ def compareTS(TI, TJ, arr_num, arr_operation):
     return True
   else:
     if(TJ[1] < TI[2] and TI[2] < TJ[3]):
-      print("Transaksi", str(TJ[0]), "mulai di antara start dan validate transaksi", str(TI[0]))
+      print("Transaksi", str(TI[0]), "finish di antara start dan validate transaksi", str(TJ[0]))
       # check apakah dia melakukan read kepada item data yg di write transaksi sebelumnya
       isNotIntersect = True
       for i in range(len(arr_operation[arr_num.index(TJ[0])][1])):
@@ -69,7 +68,7 @@ def compareTS(TI, TJ, arr_num, arr_operation):
         print("Transaksi", str(TJ[0]), "membaca data yang dituliskan oleh Transaksi", str(TI[0]), "menyebabkan kegagalan")
       return isNotIntersect
     else:
-      print("Transaksi gagal")
+      print("Pengecakan dengan transaksi", str(TI[0]),"Tidak memenuhi dua kondisi syarat validation based")
       return False
 
 def getTransactionOperation(arr, arr_num):
