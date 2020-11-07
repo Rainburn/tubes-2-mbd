@@ -26,7 +26,7 @@ def occ(array_transaksi):
   arr_operation = getTransactionOperation(array_transaksi, arr_num)
   print(arr_TS)
   # print(getTransactionOperation(array_transaksi, arr_num))
-  isValidTransaction(array_transaksi, '2', arr_TS, arr_num, arr_operation)
+  isValidTransaction(array_transaksi, '1', arr_TS, arr_num, arr_operation)
   # print(isValidTransaction(array_transaksi, 2, arr_TS))
   # print(isValidTransaction(array_transaksi, 3, arr_TS))
 
@@ -39,7 +39,7 @@ def isValidTransaction(arr, num, arr_TS, arr_num, arr_operation):
   
   i = 0
   while i < len(check_queue) and isValid:
-    a = compareTS(arr_TS[arr_num.index(num)], check_queue[i], arr_num, arr_operation)
+    a = compareTS(check_queue[i], arr_TS[arr_num.index(num)], arr_num, arr_operation)
     print(a)
     i+=1
 
@@ -49,17 +49,23 @@ def compareTS(TI, TJ, arr_num, arr_operation):
   # finishTS(TI) < startTS(TJ)
   # startTS = 1, finishTS = 2, validateTS = 3
   if (TI[2] < TJ[1]):
+    print("Masuk apa")
     return True
   else:
     if(TJ[1] < TI[2] and TI[2] < TJ[3]):
+      print("Masuk sana")
       # check apakah dia melakukan read kepada item data yg di write transaksi sebelumnya
       isNotIntersect = True
+      print(arr_operation[arr_num.index(TI[0])])
+      print(arr_operation[arr_num.index(TJ[0])])
       for i in range(len(arr_operation[arr_num.index(TJ[0])])):
-        if( arr_operation[arr_num.index(TJ[0])][i] in  arr_operation[arr_num.index(TI[0])]):
-          isNotIntersect = False
+        if(print(arr_operation[arr_num.index(TJ[0])])):
+          if(arr_operation[arr_num.index(TJ[0])][1][i] in arr_operation[arr_num.index(TI[0])][2]):
+            isNotIntersect = False
+          print(isNotIntersect)
       return isNotIntersect
     else:
-      print("masuk sini")
+      print("Masuk sini")
       return False
 
 def getTransactionOperation(arr, arr_num):
@@ -83,7 +89,7 @@ def getTransactionOperation(arr, arr_num):
 def getArrTS(arr_num, array_transaksi):
   arr_TS = []
   for x in arr_num:
-    arr_TS.append((x, getStartTS(array_transaksi, x), getFinishTS(array_transaksi, x), getValidateTS(array_transaksi, x)))
+    arr_TS.append((x, getStartTS(array_transaksi, x), getFinishTS(array_transaksi, x), getFinishTS(array_transaksi, x)))
   return arr_TS
 
 def getNumTransaction(arr):
