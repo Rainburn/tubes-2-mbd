@@ -24,40 +24,39 @@ def occ(array_transaksi):
   arr_num = sorted(getNumTransaction(array_transaksi))
   arr_TS = getArrTS(arr_num, array_transaksi)
   arr_operation = getTransactionOperation(array_transaksi, arr_num)
-  print(arr_TS)
-  # print(getTransactionOperation(array_transaksi, arr_num))
-  isValidTransaction(array_transaksi, '1', arr_TS, arr_num, arr_operation)
-  # print(isValidTransaction(array_transaksi, 2, arr_TS))
-  # print(isValidTransaction(array_transaksi, 3, arr_TS))
+
+  # Check for all transaction
+  for x in (arr_num):
+    print('Transaksi :', x)
+    isValidThisTrans = isValidTransaction(array_transaksi, x, arr_TS, arr_num, arr_operation)
+    if(isValidThisTrans):
+      print("Transaksi berhasil")
+    else:
+      print("Transaksi gagal")
 
 def isValidTransaction(arr, num, arr_TS, arr_num, arr_operation):
-  isValid = True
+  isCurrentValid = True
   check_queue = []
   for x in arr_TS:
     if(int(x[0]) < int(num)):
       check_queue.append(x)
-  
+
+  # Check for current transaction to all transaction before
   i = 0
-  while i < len(check_queue) and isValid:
-    a = compareTS(check_queue[i], arr_TS[arr_num.index(num)], arr_num, arr_operation)
-    print(a)
+  while i < len(check_queue) and isCurrentValid:
+    isCurrentValid = compareTS(check_queue[i], arr_TS[arr_num.index(num)], arr_num, arr_operation)
     i+=1
+  return isCurrentValid
 
 def compareTS(TI, TJ, arr_num, arr_operation):
-  print(TI)
-  print(TJ)
   # finishTS(TI) < startTS(TJ)
   # startTS = 1, finishTS = 2, validateTS = 3
   if (TI[2] < TJ[1]):
-    print("Masuk apa")
     return True
   else:
     if(TJ[1] < TI[2] and TI[2] < TJ[3]):
-      print("Masuk sana")
       # check apakah dia melakukan read kepada item data yg di write transaksi sebelumnya
       isNotIntersect = True
-      print(arr_operation[arr_num.index(TI[0])])
-      print(arr_operation[arr_num.index(TJ[0])])
       for i in range(len(arr_operation[arr_num.index(TJ[0])])):
         if(print(arr_operation[arr_num.index(TJ[0])])):
           if(arr_operation[arr_num.index(TJ[0])][1][i] in arr_operation[arr_num.index(TI[0])][2]):
@@ -65,7 +64,6 @@ def compareTS(TI, TJ, arr_num, arr_operation):
           print(isNotIntersect)
       return isNotIntersect
     else:
-      print("Masuk sini")
       return False
 
 def getTransactionOperation(arr, arr_num):
