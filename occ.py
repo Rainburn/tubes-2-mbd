@@ -33,6 +33,7 @@ def occ(array_transaksi):
       print("Transaksi berhasil")
     else:
       print("Transaksi gagal")
+    print("")
 
 def isValidTransaction(arr, num, arr_TS, arr_num, arr_operation):
   isCurrentValid = True
@@ -52,16 +53,23 @@ def compareTS(TI, TJ, arr_num, arr_operation):
   # finishTS(TI) < startTS(TJ)
   # startTS = 1, finishTS = 2, validateTS = 3
   if (TI[2] < TJ[1]):
+    print("Transaksi", str(TJ[0]), "mulai setelah Transaksi", str(TI[0]), "selesai")
     return True
   else:
     if(TJ[1] < TI[2] and TI[2] < TJ[3]):
+      print("Transaksi", str(TJ[0]), "mulai di antara start dan validate transaksi", str(TI[0]))
       # check apakah dia melakukan read kepada item data yg di write transaksi sebelumnya
       isNotIntersect = True
       for i in range(len(arr_operation[arr_num.index(TJ[0])][1])):
         if(arr_operation[arr_num.index(TJ[0])][1][i] in arr_operation[arr_num.index(TI[0])][2]):
           isNotIntersect = False
+      if(isNotIntersect):
+        print("Transaksi", str(TJ[0]), "tidak membaca data yang dituliskan oleh Transaksi", str(TI[0]))
+      else:
+        print("Transaksi", str(TJ[0]), "membaca data yang dituliskan oleh Transaksi", str(TI[0]), "menyebabkan kegagalan")
       return isNotIntersect
     else:
+      print("Transaksi gagal")
       return False
 
 def getTransactionOperation(arr, arr_num):
