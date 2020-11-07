@@ -57,11 +57,9 @@ def compareTS(TI, TJ, arr_num, arr_operation):
     if(TJ[1] < TI[2] and TI[2] < TJ[3]):
       # check apakah dia melakukan read kepada item data yg di write transaksi sebelumnya
       isNotIntersect = True
-      for i in range(len(arr_operation[arr_num.index(TJ[0])])):
-        if(print(arr_operation[arr_num.index(TJ[0])])):
-          if(arr_operation[arr_num.index(TJ[0])][1][i] in arr_operation[arr_num.index(TI[0])][2]):
-            isNotIntersect = False
-          print(isNotIntersect)
+      for i in range(len(arr_operation[arr_num.index(TJ[0])][1])):
+        if(arr_operation[arr_num.index(TJ[0])][1][i] in arr_operation[arr_num.index(TI[0])][2]):
+          isNotIntersect = False
       return isNotIntersect
     else:
       return False
