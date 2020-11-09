@@ -18,9 +18,7 @@ file.close()
 
 print(myfile)
 def occ(array_transaksi):
-  print("OCC")
-  print(array_transaksi)
-  base_array = array_transaksi.copy()
+  scheduled_array = array_transaksi.copy()
   arr_num = getNumTransaction(array_transaksi)
   arr_TS = getArrTS(arr_num, array_transaksi)
   arr_operation = getTransactionOperation(array_transaksi, arr_num)
@@ -37,25 +35,44 @@ def occ(array_transaksi):
       print("Transasksi di-rollback")
       for y in (array_transaksi):
         if (y[1] == x):
+          scheduled_array.remove(y)
           rolledback_queue.append(y)
     print()
-  
+
   if(rolledback_queue):
     occ(rolledback_queue)
+  
+  scheduled_array = scheduled_array + rolledback_queue
+  return changePrintFormat(scheduled_array)
 
+
+def changePrintFormat(arr):
+  readable_format = ""
+  for x in arr:
+    activity = x[0] + x[1]
+    if(x[0] != 'C'):
+      activity += "(" +x[2] + "); " 
+    else:
+      activity += "; "
+    readable_format += activity
+  return readable_format
+  
 
 def isValidTransaction(arr, num, arr_TS, arr_num, arr_operation):
   isCurrentValid = True
   check_queue = []
-  if(arr_TS):
+  for x in arr_TS:
+    if(int(x[3]) < arr_TS[arr_num.index(num)][3]):
+      check_queue.append(x)
+  
+  if (check_queue):
     print("Transaksi", num, "akan diperiksa terhadap Transaksi : ", end='')
-    for x in arr_TS:
-      if(int(x[3]) < arr_TS[arr_num.index(num)][3]):
-        print(x[0], "", end='')
-        check_queue.append(x)
+    for x in check_queue:
+      print(x[0], end=' ')
     print()
   else:
     print("Transaksi", num, "Tidak diperiksa terhadap transaksi mana pun")
+
 
   # Check for current transaction to all transaction before
   i = 0
@@ -81,7 +98,7 @@ def compareTS(TI, TJ, arr_num, arr_operation):
       if(isNotIntersect):
         print("Transaksi", str(TJ[0]), "tidak membaca data yang dituliskan oleh Transaksi", str(TI[0]))
       else:
-        print("Transaksi", str(TJ[0]), "membaca data yang dituliskan oleh Transaksi", str(TI[0]), "menyebabkan kegagalan")
+        print("Transaksi", str(TJ[0]), "membaca data yang dituliskan oleh Transaksi", str(TI[0]), ", menyebabkan kegagalan")
       return isNotIntersect
     else:
       print("Pengecakan dengan transaksi", str(TI[0]),"Tidak memenuhi dua kondisi syarat validation based")
@@ -163,4 +180,5 @@ def getValidateTS(arr, num):
     return first_write
 
 
-occ(array_transaksi)
+serial = occ(array_transaksi)
+print(serial)
