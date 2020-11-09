@@ -19,27 +19,43 @@ file.close()
 print(myfile)
 def occ(array_transaksi):
   print("OCC")
+  print(array_transaksi)
   base_array = array_transaksi.copy()
   arr_num = getNumTransaction(array_transaksi)
   arr_TS = getArrTS(arr_num, array_transaksi)
   arr_operation = getTransactionOperation(array_transaksi, arr_num)
 
   # Check for all transaction
+  rolledback_queue = []
   for x in (arr_num):
     print('Transaksi :', x)
     isValidThisTrans = isValidTransaction(array_transaksi, x, arr_TS, arr_num, arr_operation)
     if(isValidThisTrans):
-      print("Hasil : Transaksi berhasil")
+      print("Hasil : Transaksi", x, "berhasil")
     else:
-      print("Hasil : Transaksi gagal")
-    print("")
+      print("Hasil : Transaksi", x, "gagal")
+      print("Transasksi di-rollback")
+      for y in (array_transaksi):
+        if (y[1] == x):
+          rolledback_queue.append(y)
+    print()
+  
+  if(rolledback_queue):
+    occ(rolledback_queue)
+
 
 def isValidTransaction(arr, num, arr_TS, arr_num, arr_operation):
   isCurrentValid = True
   check_queue = []
-  for x in arr_TS:
-    if(int(x[3]) < arr_TS[arr_num.index(num)][3]):
-      check_queue.append(x)
+  if(arr_TS):
+    print("Transaksi", num, "akan diperiksa terhadap Transaksi : ", end='')
+    for x in arr_TS:
+      if(int(x[3]) < arr_TS[arr_num.index(num)][3]):
+        print(x[0], "", end='')
+        check_queue.append(x)
+    print()
+  else:
+    print("Transaksi", num, "Tidak diperiksa terhadap transaksi mana pun")
 
   # Check for current transaction to all transaction before
   i = 0
