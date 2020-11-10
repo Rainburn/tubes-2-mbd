@@ -2,7 +2,6 @@ global solved_item
 solved_item = []
 
 def validateProtocol(array_transaksi):
-  print(array_transaksi)
   arr_num = getNumTransaction(array_transaksi)
   arr_TS = getArrTS(arr_num, array_transaksi)
   arr_operation = getTransactionOperation(array_transaksi, arr_num)
@@ -33,18 +32,19 @@ def occ(array_transaksi, arr_num, arr_TS, arr_operation):
         stop = True
       solved_item.append(array_transaksi.pop(0))
 
+
     if(stop):
       print("stop")
-      for y in (solved_item):
-        if (y[1] == x):
-          array_transaksi.append(y)
-          solved_item.remove(y)
+      i = 0
+      while i < len(solved_item):
+        if (solved_item[i][1] == x):
+          array_transaksi.append(solved_item[i])
+          solved_item.remove(solved_item[i])
+          i -=1
+        i+=1
 
       all_arr = solved_item + array_transaksi
-      print(all_arr)
-      print(arr_TS)
       arr_TS = getArrTS(arr_num, all_arr)
-      print(arr_TS)   
       break
 
   if(len(array_transaksi)!=0):
