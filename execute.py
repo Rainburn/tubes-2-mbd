@@ -30,7 +30,7 @@ if inputUser == "1":
     array_hasil = execute(array_transaksi)
 elif inputUser=="2":
     print("OCC")
-    occ(array_transaksi)
+    validateProtocol(array_transaksi)
     print("Transaksi selesai")
 # else :
 

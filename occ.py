@@ -1,46 +1,25 @@
-file = open("data-input.txt", "r")
-myfile = file.read()
-arr = myfile.split("; ")
-
-array_transaksi = []
-for data in arr:
-    data = str(data)
-    jenis = data[0]
-    if jenis != "C":
-        item = data[-2]
-        transaksi = data[1:-3]
-    else:
-        item = ""
-        transaksi = data[1:]
-
-    array_transaksi.append((jenis, transaksi, item))
-file.close()
-
 global solved_item
 solved_item = []
 
-def occ(array_transaksi):
+def validateProtocol(array_transaksi):
   print(array_transaksi)
-  scheduled_array = array_transaksi.copy()
   arr_num = getNumTransaction(array_transaksi)
   arr_TS = getArrTS(arr_num, array_transaksi)
   arr_operation = getTransactionOperation(array_transaksi, arr_num)
+  occ(array_transaksi, arr_num, arr_TS, arr_operation)
 
+def occ(array_transaksi, arr_num, arr_TS, arr_operation):
   # Check for all transaction
-  rolledback_queue = []
   stop = False
   while(len(array_transaksi)!=0):
     if(array_transaksi[0][0] == 'R'):
       print("Transaksi", array_transaksi[0][1], "membaca item data", array_transaksi[0][2])
       solved_item.append(array_transaksi.pop(0))
-      print(array_transaksi)
     elif(array_transaksi[0][0] == 'W'):
       print("Transaksi", array_transaksi[0][1], "menulis item data", array_transaksi[0][2], "ke lokal variabel")
       solved_item.append(array_transaksi.pop(0))
-      print(array_transaksi)
 
-
-    if(array_transaksi[0][0] == 'C'):
+    elif(array_transaksi[0][0] == 'C'):
       print()
       x = array_transaksi[0][1]
       print('Melakukan Validasi Transaksi :', x)
@@ -52,21 +31,24 @@ def occ(array_transaksi):
         print("Transaksi", x, "gagal")
         print("Transasksi di-rollback\n")
         stop = True
-
-    solved_item.append(array_transaksi.pop(0))
-    print(array_transaksi)
+      solved_item.append(array_transaksi.pop(0))
 
     if(stop):
       print("stop")
       for y in (solved_item):
         if (y[1] == x):
           array_transaksi.append(y)
+          solved_item.remove(y)
+
+      all_arr = solved_item + array_transaksi
+      print(all_arr)
+      print(arr_TS)
+      arr_TS = getArrTS(arr_num, all_arr)
+      print(arr_TS)   
       break
 
   if(len(array_transaksi)!=0):
-    occ(array_transaksi)
-  
-  # return scheduled_array
+    occ(array_transaksi, arr_num, arr_TS, arr_operation)
 
 
 def changePrintFormat(arr):
