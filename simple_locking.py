@@ -24,7 +24,7 @@ def simple_lock(array_transaksi):
                     waiting_queue.append((jenis, transaksi, item))
                     string = "Operasi sebelumnya di transaksi yang sama masih di Waiting Queue, masukkan operasi ini ke waiting queue\nWaiting Queue = " + \
                         printQueue(waiting_queue)
-                    log.append(string)
+                    print(string, end="\n\n")
                     found = True
                     break
             # Jika tidak ada, bisa eksekusi (Berikan XL dan eksekusi)
@@ -34,7 +34,7 @@ def simple_lock(array_transaksi):
                 array_with_lock.append((jenis, transaksi, item))
                 string = "Lakukan ekslusif lock "+"XL"+transaksi + \
                     "("+item+")"+"\nEksekusi "+jenis+transaksi+"("+item+")"
-                log.append(string)
+                print(string, end="\n\n")
 
         # Jika item di ekslusif lock
         elif item in xl and jenis != "C":
@@ -44,7 +44,7 @@ def simple_lock(array_transaksi):
                 if xl[item] == transaksi:
                     array_with_lock.append((jenis, transaksi, item))
                     string = "Eksekusi "+jenis+transaksi+"("+item+")"
-                    log.append(string)
+                    print(string, end="\n\n")
                     found = True
                     break
             # Jika di ekslusif lock itemnya dan transaksinya berbeda
@@ -52,7 +52,7 @@ def simple_lock(array_transaksi):
                 waiting_queue.append((jenis, transaksi, item))
                 string = "Item " + item+" masih di XL trnasaksi lain, masukkan operasi ke waiting queue\nWaiting Queue = " + \
                     printQueue(waiting_queue)
-                log.append(string)
+                print(string, end="\n\n")
 
         # Untuk jenis transaksi Commit
         elif jenis == "C":
@@ -65,7 +65,7 @@ def simple_lock(array_transaksi):
                     waiting_queue.append((jenis, transaksi, item))
                     string = "Item " + item+" masih di XL transaksi lain, masukkan transaksi ke waiting queue\nWaiting Queue = " + \
                         printQueue(waiting_queue)
-                    log.append(string)
+                    print(string, end="\n\n")
                     found = True
                     break
                 # Jika transaksinya sama dan namun tidak di XL sama transaksi lain, jalankan transaksi itu, masukkan Commit ke Queue
@@ -79,7 +79,7 @@ def simple_lock(array_transaksi):
                     string += "\nLakukan ekslusif lock XL"+transaksi2 + \
                         "("+item2+")\nEksekusi " + \
                         jenis2+transaksi2+"("+item2+")"
-                    log.append(string)
+                    print(string, end="\n\n")
 
                     waiting_queue.pop(idx)
                     waiting_queue.append((jenis, transaksi, item))
@@ -87,7 +87,7 @@ def simple_lock(array_transaksi):
                     string = "Masukkan commit " + jenis + transaksi + \
                         " ke dalam waiting queue\nWaiting Queue = " + \
                         printQueue(waiting_queue)
-                    log.append(string)
+                    print(string, end="\n\n")
 
                     found = True
                     break
@@ -101,10 +101,10 @@ def simple_lock(array_transaksi):
                         items.append(item1)
                         array_with_lock.append(("UL", transaksi, item1))
                         string = "Unlock item "+"UL"+transaksi+"("+item1+")"
-                        log.append(string)
+                        print(string, end="\n\n")
                 array_with_lock.append((jenis, transaksi, item))
                 string = "Eksekusi "+jenis+transaksi
-                log.append(string)
+                print(string, end="\n\n")
                 for item2 in items:
                     xl.pop(item2)
         i = i+1

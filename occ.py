@@ -1,49 +1,54 @@
-file = open("data-input.txt", "r")
-myfile = file.read()
-arr = myfile.split("; ")
+global solved_item
+solved_item = []
 
-array_transaksi = []
-for data in arr:
-    data = str(data)
-    jenis = data[0]
-    if jenis != "C":
-        item = data[-2]
-        transaksi = data[1:-3]
-    else:
-        item = ""
-        transaksi = data[1:]
-
-    array_transaksi.append((jenis, transaksi, item))
-file.close()
-
-print(myfile)
-def occ(array_transaksi):
-  scheduled_array = array_transaksi.copy()
+def validateProtocol(array_transaksi):
+  print(array_transaksi)
   arr_num = getNumTransaction(array_transaksi)
   arr_TS = getArrTS(arr_num, array_transaksi)
   arr_operation = getTransactionOperation(array_transaksi, arr_num)
+  occ(array_transaksi, arr_num, arr_TS, arr_operation)
 
+def occ(array_transaksi, arr_num, arr_TS, arr_operation):
   # Check for all transaction
-  rolledback_queue = []
-  for x in (arr_num):
-    print('Transaksi :', x)
-    isValidThisTrans = isValidTransaction(array_transaksi, x, arr_TS, arr_num, arr_operation)
-    if(isValidThisTrans):
-      print("Hasil : Transaksi", x, "berhasil")
-    else:
-      print("Hasil : Transaksi", x, "gagal")
-      print("Transasksi di-rollback")
-      for y in (array_transaksi):
-        if (y[1] == x):
-          scheduled_array.remove(y)
-          rolledback_queue.append(y)
-    print()
+  stop = False
+  while(len(array_transaksi)!=0):
+    if(array_transaksi[0][0] == 'R'):
+      print("Transaksi", array_transaksi[0][1], "membaca item data", array_transaksi[0][2])
+      solved_item.append(array_transaksi.pop(0))
+    elif(array_transaksi[0][0] == 'W'):
+      print("Transaksi", array_transaksi[0][1], "menulis item data", array_transaksi[0][2], "ke lokal variabel")
+      solved_item.append(array_transaksi.pop(0))
 
-  if(rolledback_queue):
-    occ(rolledback_queue)
-  
-  scheduled_array = scheduled_array + rolledback_queue
-  return changePrintFormat(scheduled_array)
+    elif(array_transaksi[0][0] == 'C'):
+      print()
+      x = array_transaksi[0][1]
+      print('Melakukan Validasi Transaksi :', x)
+      isValidThisTrans = isValidTransaction(array_transaksi, x, arr_TS, arr_num, arr_operation)
+      if(isValidThisTrans):
+        print("Transaksi", x, "lolos validasi, menuliskan data ke db dan commit")
+        print("Transaksi", x, "Selesai\n")
+      else:
+        print("Transaksi", x, "gagal")
+        print("Transasksi di-rollback\n")
+        stop = True
+      solved_item.append(array_transaksi.pop(0))
+
+    if(stop):
+      print("stop")
+      for y in (solved_item):
+        if (y[1] == x):
+          array_transaksi.append(y)
+          solved_item.remove(y)
+
+      all_arr = solved_item + array_transaksi
+      print(all_arr)
+      print(arr_TS)
+      arr_TS = getArrTS(arr_num, all_arr)
+      print(arr_TS)   
+      break
+
+  if(len(array_transaksi)!=0):
+    occ(array_transaksi, arr_num, arr_TS, arr_operation)
 
 
 def changePrintFormat(arr):
@@ -98,7 +103,7 @@ def compareTS(TI, TJ, arr_num, arr_operation):
       if(isNotIntersect):
         print("Transaksi", str(TJ[0]), "tidak membaca data yang dituliskan oleh Transaksi", str(TI[0]))
       else:
-        print("Transaksi", str(TJ[0]), "membaca data yang dituliskan oleh Transaksi", str(TI[0]), ", menyebabkan kegagalan")
+        print("Transaksi", str(TJ[0]), "membaca data yang dituliskan oleh Transaksi", str(TI[0]), "Menyebabkan kegagalan")
       return isNotIntersect
     else:
       print("Pengecakan dengan transaksi", str(TI[0]),"Tidak memenuhi dua kondisi syarat validation based")
@@ -180,5 +185,5 @@ def getValidateTS(arr, num):
     return first_write
 
 
-serial = occ(array_transaksi)
-print(serial)
+# serial = occ(array_transaksi)
+# print(serial)

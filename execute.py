@@ -1,6 +1,7 @@
 import random
 import string
 from simple_locking import *
+from occ import *
 import time
 
 
@@ -96,21 +97,21 @@ print(printQueue(array_transaksi), end="\n")
 print("Pilihan input :\n1. Simple Locking\n2. OCC\n3. MVCC")
 
 inputUser = str(input("Input : "))
+print()
 
+array_hasil = []
 if inputUser == "1":
     print("Harap menunggu ...")
     start_time = time.time()
     array_hasil, logs = simple_lock(array_transaksi)
+    print("Transaksi selesai")
     times = time.time() - start_time
     print(array_hasil)
     print("Exec time : "+str(times), end="\n")
 
-    inp = str(input("Print log?(y/n) : "))
-    if inp == "y":
-        for log in logs:
-            print(log, end="\n\n")
 
-
-# else if inputUser=="2":
-
+elif inputUser == "2":
+    print("OCC")
+    validateProtocol(array_transaksi)
+    print("Transaksi selesai")
 # else :
