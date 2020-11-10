@@ -1,5 +1,5 @@
 from simple_locking import *
-# import from occ
+from occ import *
 # import from mvcc
 
 file = open("data-input.txt", "r")
@@ -18,18 +18,18 @@ for data in arr:
         transaksi = data[1:]
 
     array_transaksi.append((jenis, transaksi, item))
-
 print(myfile)
 file.close()
 print("Pilihan input :\n1. Simple Locking\n2. OCC\n3. MVCC")
 
 inputUser = str(input("Input : "))
+print()
 
 if inputUser == "1":
     array_hasil = execute(array_transaksi)
-
-# else if inputUser=="2":
-
+elif inputUser=="2":
+    print("OCC")
+    array_hasil = occ(array_transaksi)
 # else :
 
 

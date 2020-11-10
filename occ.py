@@ -16,17 +16,26 @@ for data in arr:
     array_transaksi.append((jenis, transaksi, item))
 file.close()
 
-print(myfile)
 def occ(array_transaksi):
   scheduled_array = array_transaksi.copy()
   arr_num = getNumTransaction(array_transaksi)
   arr_TS = getArrTS(arr_num, array_transaksi)
   arr_operation = getTransactionOperation(array_transaksi, arr_num)
 
+  for x in array_transaksi:
+    print(x)
+  print()
+
   # Check for all transaction
   rolledback_queue = []
-  for x in (arr_num):
-    print('Transaksi :', x)
+  array_transaksi.append(('T', '', ''))
+  for i in range(len(array_transaksi)-1):
+    if(array_transaksi[i+1][0] == 'C'):
+      print(array_transaksi[i+1][1], "Mau commit")
+
+
+  for idx, x in enumerate(arr_num):
+    print('Melakukan Validasi Transaksi :', x)
     isValidThisTrans = isValidTransaction(array_transaksi, x, arr_TS, arr_num, arr_operation)
     if(isValidThisTrans):
       print("Hasil : Transaksi", x, "berhasil")
@@ -43,7 +52,7 @@ def occ(array_transaksi):
     occ(rolledback_queue)
   
   scheduled_array = scheduled_array + rolledback_queue
-  return changePrintFormat(scheduled_array)
+  return scheduled_array
 
 
 def changePrintFormat(arr):
@@ -98,7 +107,7 @@ def compareTS(TI, TJ, arr_num, arr_operation):
       if(isNotIntersect):
         print("Transaksi", str(TJ[0]), "tidak membaca data yang dituliskan oleh Transaksi", str(TI[0]))
       else:
-        print("Transaksi", str(TJ[0]), "membaca data yang dituliskan oleh Transaksi", str(TI[0]), ", menyebabkan kegagalan")
+        print("Transaksi", str(TJ[0]), "membaca data yang dituliskan oleh Transaksi", str(TI[0]), "Menyebabkan kegagalan")
       return isNotIntersect
     else:
       print("Pengecakan dengan transaksi", str(TI[0]),"Tidak memenuhi dua kondisi syarat validation based")
@@ -180,5 +189,5 @@ def getValidateTS(arr, num):
     return first_write
 
 
-serial = occ(array_transaksi)
-print(serial)
+# serial = occ(array_transaksi)
+# print(serial)
