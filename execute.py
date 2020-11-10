@@ -25,17 +25,19 @@ print("Pilihan input :\n1. Simple Locking\n2. OCC\n3. MVCC")
 inputUser = str(input("Input : "))
 print()
 
+array_hasil=[]
 if inputUser == "1":
     array_hasil = execute(array_transaksi)
 elif inputUser=="2":
     print("OCC")
-    array_hasil = occ(array_transaksi)
+    occ(array_transaksi)
+    print("Transaksi selesai")
 # else :
 
-
-print("Hasil Transaksi Konkuren")
-for jenis2, item2, transaksi2 in array_hasil:
-    if jenis2 != "C":
-        print(jenis2+item2+"("+transaksi2+"); ", end="")
-    else:
-        print(jenis2+item2+"; ", end="")
+if(len(array_hasil)!=0):
+    print("Hasil Transaksi Konkuren")
+    for jenis2, item2, transaksi2 in array_hasil:
+        if jenis2 != "C":
+            print(jenis2+item2+"("+transaksi2+"); ", end="")
+        else:
+            print(jenis2+item2+"; ", end="")

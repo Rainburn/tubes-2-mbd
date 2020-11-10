@@ -16,7 +16,11 @@ for data in arr:
     array_transaksi.append((jenis, transaksi, item))
 file.close()
 
+global solved_item
+solved_item = []
+
 def occ(array_transaksi):
+  print(array_transaksi)
   scheduled_array = array_transaksi.copy()
   arr_num = getNumTransaction(array_transaksi)
   arr_TS = getArrTS(arr_num, array_transaksi)
@@ -24,17 +28,21 @@ def occ(array_transaksi):
 
   # Check for all transaction
   rolledback_queue = []
-  array_transaksi.append(('Terminate', '', ''))
-  for i in range(len(array_transaksi)-1):
+  stop = False
+  while(len(array_transaksi)!=0):
+    if(array_transaksi[0][0] == 'R'):
+      print("Transaksi", array_transaksi[0][1], "membaca item data", array_transaksi[0][2])
+      solved_item.append(array_transaksi.pop(0))
+      print(array_transaksi)
+    elif(array_transaksi[0][0] == 'W'):
+      print("Transaksi", array_transaksi[0][1], "menulis item data", array_transaksi[0][2], "ke lokal variabel")
+      solved_item.append(array_transaksi.pop(0))
+      print(array_transaksi)
 
-    if(array_transaksi[i][0] == 'R'):
-      print("Transaksi", array_transaksi[i][1], "membaca item data", array_transaksi[i][2])
-    elif(array_transaksi[i][0] == 'W'):
-      print("Transaksi", array_transaksi[i][1], "menulis item data", array_transaksi[i][2])
-    
-    if(array_transaksi[i+1][0] == 'C'):
+
+    if(array_transaksi[0][0] == 'C'):
       print()
-      x = array_transaksi[i+1][1]
+      x = array_transaksi[0][1]
       print('Melakukan Validasi Transaksi :', x)
       isValidThisTrans = isValidTransaction(array_transaksi, x, arr_TS, arr_num, arr_operation)
       if(isValidThisTrans):
@@ -43,16 +51,22 @@ def occ(array_transaksi):
       else:
         print("Transaksi", x, "gagal")
         print("Transasksi di-rollback\n")
-        for y in (array_transaksi):
-          if (y[1] == x):
-            scheduled_array.remove(y)
-            rolledback_queue.append(y)
+        stop = True
 
-  if(rolledback_queue):
-    occ(rolledback_queue)
+    solved_item.append(array_transaksi.pop(0))
+    print(array_transaksi)
+
+    if(stop):
+      print("stop")
+      for y in (solved_item):
+        if (y[1] == x):
+          array_transaksi.append(y)
+      break
+
+  if(len(array_transaksi)!=0):
+    occ(array_transaksi)
   
-  scheduled_array = scheduled_array + rolledback_queue
-  return scheduled_array
+  # return scheduled_array
 
 
 def changePrintFormat(arr):
