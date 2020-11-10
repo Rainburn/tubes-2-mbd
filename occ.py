@@ -22,31 +22,31 @@ def occ(array_transaksi):
   arr_TS = getArrTS(arr_num, array_transaksi)
   arr_operation = getTransactionOperation(array_transaksi, arr_num)
 
-  for x in array_transaksi:
-    print(x)
-  print()
-
   # Check for all transaction
   rolledback_queue = []
-  array_transaksi.append(('T', '', ''))
+  array_transaksi.append(('Terminate', '', ''))
   for i in range(len(array_transaksi)-1):
+
+    if(array_transaksi[i][0] == 'R'):
+      print("Transaksi", array_transaksi[i][1], "membaca item data", array_transaksi[i][2])
+    elif(array_transaksi[i][0] == 'W'):
+      print("Transaksi", array_transaksi[i][1], "menulis item data", array_transaksi[i][2])
+    
     if(array_transaksi[i+1][0] == 'C'):
-      print(array_transaksi[i+1][1], "Mau commit")
-
-
-  for idx, x in enumerate(arr_num):
-    print('Melakukan Validasi Transaksi :', x)
-    isValidThisTrans = isValidTransaction(array_transaksi, x, arr_TS, arr_num, arr_operation)
-    if(isValidThisTrans):
-      print("Hasil : Transaksi", x, "berhasil")
-    else:
-      print("Hasil : Transaksi", x, "gagal")
-      print("Transasksi di-rollback")
-      for y in (array_transaksi):
-        if (y[1] == x):
-          scheduled_array.remove(y)
-          rolledback_queue.append(y)
-    print()
+      print()
+      x = array_transaksi[i+1][1]
+      print('Melakukan Validasi Transaksi :', x)
+      isValidThisTrans = isValidTransaction(array_transaksi, x, arr_TS, arr_num, arr_operation)
+      if(isValidThisTrans):
+        print("Transaksi", x, "lolos validasi, menuliskan data ke db dan commit")
+        print("Transaksi", x, "Selesai\n")
+      else:
+        print("Transaksi", x, "gagal")
+        print("Transasksi di-rollback\n")
+        for y in (array_transaksi):
+          if (y[1] == x):
+            scheduled_array.remove(y)
+            rolledback_queue.append(y)
 
   if(rolledback_queue):
     occ(rolledback_queue)

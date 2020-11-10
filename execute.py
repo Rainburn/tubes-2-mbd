@@ -33,6 +33,7 @@ elif inputUser=="2":
 # else :
 
 
+print("Hasil Transaksi Konkuren")
 for jenis2, item2, transaksi2 in array_hasil:
     if jenis2 != "C":
         print(jenis2+item2+"("+transaksi2+"); ", end="")
