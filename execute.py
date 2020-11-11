@@ -107,11 +107,16 @@ if inputUser == "1":
     print("Transaksi selesai")
     times = time.time() - start_time
     print(array_hasil)
-    print("Exec time : "+str(times), end="\n")
+    print("Exec time : " + str(times), end="\n")
 
 
 elif inputUser == "2":
     print("OCC")
-    validateProtocol(array_transaksi)
-    print("Transaksi selesai")
+    print("Harap menunggu ...")
+    start_time = time.time()
+    array_hasil = validateProtocol(array_transaksi)
+    print("Schedlue selesai dieksekusi, hasil salah satu shedule yang memenuhi validasi")
+    times = time.time() - start_time
+    print(array_hasil)
+    print("Exec time : " + str(times), end="\n")
 # else :

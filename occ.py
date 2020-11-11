@@ -1,3 +1,5 @@
+import random
+
 global solved_item
 solved_item = []
 
@@ -6,6 +8,7 @@ def validateProtocol(array_transaksi):
   arr_TS = getArrTS(arr_num, array_transaksi)
   arr_operation = getTransactionOperation(array_transaksi, arr_num)
   occ(array_transaksi, arr_num, arr_TS, arr_operation)
+  return changePrintFormat(solved_item)
 
 def occ(array_transaksi, arr_num, arr_TS, arr_operation):
   # Check for all transaction
@@ -34,15 +37,17 @@ def occ(array_transaksi, arr_num, arr_TS, arr_operation):
 
 
     if(stop):
-      print("stop")
+      rolledback_trans = []
       i = 0
       while i < len(solved_item):
         if (solved_item[i][1] == x):
-          array_transaksi.append(solved_item[i])
+          rolledback_trans.append(solved_item[i])
+          # array_transaksi.append(solved_item[i])
           solved_item.remove(solved_item[i])
           i -=1
         i+=1
 
+      array_transaksi = concatConcurrency(array_transaksi, rolledback_trans)
       all_arr = solved_item + array_transaksi
       arr_TS = getArrTS(arr_num, all_arr)
       break
@@ -50,6 +55,17 @@ def occ(array_transaksi, arr_num, arr_TS, arr_operation):
   if(len(array_transaksi)!=0):
     occ(array_transaksi, arr_num, arr_TS, arr_operation)
 
+
+def concatConcurrency(array_transaksi, rolledback_trans):
+  change_idx = True
+  interval = 2
+  idx = len(array_transaksi)//3
+  for x in reversed(rolledback_trans):
+    array_transaksi.insert(idx, x)
+    if(idx - interval > 0 and change_idx):
+      idx = idx - interval
+    change_idx = random.choice([True, False])
+  return array_transaksi
 
 def changePrintFormat(arr):
   readable_format = ""
@@ -183,7 +199,3 @@ def getValidateTS(arr, num):
     return last_read + 1
   else:
     return first_write
-
-
-# serial = occ(array_transaksi)
-# print(serial)
