@@ -34,14 +34,21 @@ def occ(array_transaksi, arr_num, arr_TS, arr_operation):
 
 
     if(stop):
+      rolledback_trans = []
       print("stop")
       i = 0
       while i < len(solved_item):
         if (solved_item[i][1] == x):
-          array_transaksi.append(solved_item[i])
+          rolledback_trans.append(solved_item[i])
+          # array_transaksi.append(solved_item[i])
           solved_item.remove(solved_item[i])
           i -=1
         i+=1
+
+      array_transaksi = concatConcurrency(array_transaksi, rolledback_trans)
+
+      if(x=='7'):
+        print(array_transaksi)
 
       all_arr = solved_item + array_transaksi
       arr_TS = getArrTS(arr_num, all_arr)
@@ -50,6 +57,20 @@ def occ(array_transaksi, arr_num, arr_TS, arr_operation):
   if(len(array_transaksi)!=0):
     occ(array_transaksi, arr_num, arr_TS, arr_operation)
 
+
+def concatConcurrency(array_transaksi, rolledback_trans):
+  idx_arr = []
+  divider = 5
+  idx = len(array_transaksi)//divider
+  for x in rolledback_trans:
+    idx_arr.append(idx)
+    array_transaksi.insert(idx, x)
+    if (divider > 2):
+      divider -= 1
+    idx = len(array_transaksi)//divider
+    while(idx in idx_arr):
+      idx+=1
+  return array_transaksi
 
 def changePrintFormat(arr):
   readable_format = ""

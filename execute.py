@@ -113,5 +113,5 @@ if inputUser == "1":
 elif inputUser == "2":
     print("OCC")
     validateProtocol(array_transaksi)
-    print("Transaksi selesai")
+    print("Transaksi selesai oke mantap")
 # else :
