@@ -9,10 +9,13 @@ import time
 def schedule_generator():
     dictionary = {}
     array_akhir = []
+    array_only_read = []
     jumlah_transaksi = int(input("Masukkan jumlah transaksi(Max=50) : "))
     for i in range(1, jumlah_transaksi+1):
         j = str(i)
         dictionary[j] = 0
+        if (random.randint(1,10) < 8):
+            array_only_read.append(j)
     tr = 0
     jumlah_proses = int(
         input("Masukkan jumlah proses dalam satu transaksi(Max=50) : "))
@@ -20,10 +23,12 @@ def schedule_generator():
     jumlah_item = int(input("Masukkan jumlah item transaksi(Max=26): "))
     it = 0
     while dictionary:
-        jenis = findWriteRead()
         transaksi = addProses(dictionary)
+        if(transaksi in array_only_read):
+            jenis = "R"
+        else :
+            jenis = findWriteRead()
         item = findItem(jumlah_item)
-
         if str(dictionary[transaksi]) == str(jumlah_transaksi):
             jenis = "C"
             item = ""
@@ -32,7 +37,6 @@ def schedule_generator():
         else:
             array_akhir.append((jenis, transaksi, item))
     return array_akhir
-
 
 def addProses(dictionary):
     rand_string = random.choices(list(dictionary.keys()))
