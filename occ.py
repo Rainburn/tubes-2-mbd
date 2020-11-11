@@ -1,3 +1,5 @@
+import random
+
 global solved_item
 solved_item = []
 
@@ -55,17 +57,14 @@ def occ(array_transaksi, arr_num, arr_TS, arr_operation):
 
 
 def concatConcurrency(array_transaksi, rolledback_trans):
-  idx_arr = []
-  divider = 5
-  idx = len(array_transaksi)//divider
-  for x in rolledback_trans:
-    idx_arr.append(idx)
+  change_idx = True
+  interval = 2
+  idx = len(array_transaksi)//3
+  for x in reversed(rolledback_trans):
     array_transaksi.insert(idx, x)
-    if (divider > 2):
-      divider -= 1
-    idx = len(array_transaksi)//divider
-    while(idx in idx_arr):
-      idx+=1
+    if(idx - interval > 0 and change_idx):
+      idx = idx - interval
+    change_idx = random.choice([True, False])
   return array_transaksi
 
 def changePrintFormat(arr):
@@ -200,7 +199,3 @@ def getValidateTS(arr, num):
     return last_read + 1
   else:
     return first_write
-
-
-# serial = occ(array_transaksi)
-# print(serial)
