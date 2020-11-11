@@ -1,3 +1,4 @@
+import time
 from mvcc_resource import *
 
 
@@ -27,9 +28,12 @@ file.close()
 actions = array_transaksi
 
 transaction_timestamps = []
+
+start_time = time.time()
+
 for action in actions :
-    if not(action[1] in transaction_timestamps):
-        transaction_timestamps.append(action[1])
+    if not(int(action[1]) in transaction_timestamps):
+        transaction_timestamps.append(int(action[1]))
 # Sorting the timestamps
 transaction_timestamps.sort()
 
@@ -50,7 +54,7 @@ for action in actions :
     timestamp = int(action[1])
 
     for i in range(len(transaction_timestamps)) :
-        if (timestamp == transactions[i].get_timestamp()) :
+        if (timestamp == int(transactions[i].get_timestamp())) :
             transactions[i].add_action(action)
             break
 
@@ -74,6 +78,10 @@ for i in range(total_resource) :
     versions_of_resource[i][0] = default_resource_ver
 
 
+print_actions_in_order(actions)
+print()
+
+
 data = 1 # set data for write action
 # Lets evaluate the schedule
 commit_waiting_list = []
@@ -85,30 +93,30 @@ for action in actions :
 
     
 
-    t_act = get_trasaction_by_ts(transactions, ts)
+    t_act = get_trasaction_by_ts(transactions, ts_int)
     res_idx = get_resource_col_num(res_name, versions_of_resource)
 
-    if (t_act.get_abort_status()):
+    if (t_act.get_abort_status() or t_act.get_rollback_status()):
         continue
 
     # If Read
     if (action_type == "R") :
-        qk = get_biggest_wts_res(res_name, ts, versions_of_resource)
+        qk = get_biggest_wts_res(res_name, ts_int, versions_of_resource)
         qk.read(t_act, versions_of_resource, transactions)
 
     # If Write
     elif (action_type == "W") :
         # Implement Write here
-        qk = get_biggest_wts_res(res_name, ts, versions_of_resource)
+        qk = get_biggest_wts_res(res_name, ts_int, versions_of_resource)
         data = data + 1
-        new_resource = qk.write(data, t_act, versions_of_resource, transactions)
+        new_resource = qk.write(data, t_act, versions_of_resource, transactions, actions)
 
         if (new_resource):
             versions_of_resource[res_idx][ts_int] = new_resource
+        
 
     elif (action_type == "A") : # Action is Abort
         t_act.abort()
-        t_act.rollback(actions, transactions)
 
 
     else : # Action type is Commit
@@ -124,10 +132,30 @@ for action in actions :
                         idx = get_act_idx_in_array_by_ts(iter_affected_ts, commit_waiting_list)
                         pop_act = commit_waiting_list[idx]
                         del commit_waiting_list[idx]
-                        act_ts = pop_act[1] # Timestamp of Commit
+                        act_ts = int(pop_act[1]) # Timestamp of Commit
                         will_be_commited_ts = get_trasaction_by_ts(transactions, act_ts)
-                        will_be_commited_ts.commit(transactions)
+                        commit_status = will_be_commited_ts.commit(transactions) 
+                        if not(commit_status):
+                            commit_waiting_list.append(pop_act)
 
         else :
             commit_waiting_list.append(action)
-            
+    
+
+
+for trans in transactions:
+    if (trans.rollbacks) :
+        print("T" + str(trans.timestamp) + " runs serially")
+        # Remove Actions whose transaction is rollbacked 
+        for action in trans.actions :
+            if (int(action[1]) == int(trans.timestamp)):
+                actions.remove(action)
+
+        for action in trans.actions :
+            actions.append(action)
+
+    
+
+print_actions_in_order(actions)
+end_time = time.time()
+print("Time Elapsed :", end_time - start_time, "Seconds")

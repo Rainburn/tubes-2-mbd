@@ -8,13 +8,14 @@ class Transaction :
         self.affects = []
         self.commit_status = False
         self.aborted = False
+        self.rollbacks = False
 
         # Let the cascade : T1 -> T2 -> T3
         # T1.affects = [T2]
         # T2.affects = [T3]
 
     def get_timestamp(self):
-        return self.timestamp
+        return int(self.timestamp)
     
     def get_actions(self):
         return self.actions
@@ -24,12 +25,15 @@ class Transaction :
     
     def get_affects(self):
         return self.affects
+    
+    def get_rollback_status(self) :
+        return self.rollbacks
 
     def commit(self, transactions):
         affecting = self.get_affecting_ts(transactions)
         all_commit = True
         failing_ts = []
-        
+
         if (affecting != None) :
             for ts in affecting :
 
@@ -39,19 +43,19 @@ class Transaction :
                     break
 
         if (all_commit) :
-            print("Commit of T" + self.get_timestamp() + " Success")
+            print("Commit of T" + str(self.timestamp) + " Success")
             self.commit_status = True
             return True
 
         else :
-            print("Commit of T" + self.get_timestamp() + " Fails because T" + failing_ts[0].get_timestamp() + " has not commited yet.")
+            print("Commit of T" + str(self.timestamp) + " Fails because T" + str(failing_ts[0].get_timestamp()) + " has not commited yet.")
             return False
 
     def add_action(self, action):
         self.actions.append(action)
 
     def __str__(self):
-        return "T" + self.timestamp
+        return "T" + str(self.timestamp)
 
     def change_timestamp(self, ts) :
         self.timestamp = ts
@@ -67,8 +71,21 @@ class Transaction :
     def get_abort_status(self):
         return self.aborted
 
-    def abort(self):
+    def abort(self, matrix, transactions, actions):
         self.aborted = True
+        print("T" + str(self.timestamp) + " aborts")
+
+        for i in range(len(matrix)):
+            ts_int = int(self.timestamp)
+            matrix[i][ts_int] = None
+
+        # Cascading Rollback
+        if (len(self.affects) > 0):
+            for t in self.affects :
+                    print("Cascading from T" + str(self.timestamp) + " -> ", end = "")
+                    t.rollback(matrix, transactions, actions)
+
+
 
     def get_affecting_ts(self, transactions) :
         affecting = []
@@ -84,12 +101,13 @@ class Transaction :
         
         return affecting
 
-    def rollback(self, matrix, transactions): # With Cascading
-        
+    def rollback(self, matrix, transactions, actions): # With Cascading  
+
+        self.rollbacks = True  
+
         if not(self.aborted):
-            print("T" + self.timestamp + " rollbacks")
+            print("T" + str(self.timestamp) + " rollbacks")
             print()
-        self.abort()
 
         for i in range(len(matrix)):
             ts_int = int(self.timestamp)
@@ -98,8 +116,8 @@ class Transaction :
         # Cascading Rollback
         if (len(self.affects) > 0):
             for t in self.affects :
-                    print("Cascading from T" + self.timestamp + " -> ", end = "")
-                    t.rollback(matrix, transactions)
+                    print("Cascading from T" + str(self.timestamp) + " -> ", end = "")
+                    t.rollback(matrix, transactions, actions)
 
 class Resource :
     
@@ -139,14 +157,15 @@ class Resource :
 
             
 
-    def write(self, data, transaction, matrix, transactions) :
+    def write(self, data, transaction, matrix, transactions, actions) :
         
         tts = int(transaction.get_timestamp())
 
         if (tts < self.rts) :
             # Rollback
             print("T" + str(tts) + " performs Write on " + self.name + ", but " + self.name + str(self.version) + " has been read by transaction T" + str(self.rts))
-            transaction.rollback(matrix, transactions)
+            transaction.rollback(matrix, transactions, actions)
+            return False
             
         # Update data
         elif (tts == self.wts) :
@@ -283,8 +302,8 @@ def get_trasaction_by_ts(transactions, ts):
     return None
 
 def add_cascade(affecting_trans, affected_trans, transactions) :
-    affecting_trans = str(affecting_trans)
-    affected_trans = str(affected_trans)
+    affecting_trans = int(affecting_trans)
+    affected_trans = int(affected_trans)
     for t in transactions :
         if (affecting_trans == t.get_timestamp()) :
             for t_affected in transactions :
@@ -297,7 +316,7 @@ def is_available_action_in_array_by_ts(transaction, array):
         return False
 
     for act in array :
-        if (transaction.get_timestamp() == act[1]) :
+        if (int(transaction.get_timestamp()) == int(act[1])) :
             return True
 
     return False
@@ -308,7 +327,19 @@ def get_act_idx_in_array_by_ts(transaction, array):
         return -999
 
     for i in range(len(array)):
-        if (transaction.get_timestamp() == array[i][1]) :
+        if (int(transaction.get_timestamp()) == int(array[i][1])) :
             return i
 
     return -999 # Not Found
+
+def print_actions_in_order(actions) :
+    for action in actions :
+        if (action[0] == "C") :
+            print(action[0] + str(action[1]), end = " ")
+        
+        else :
+            print(action[0] + str(action[1]) + "(" + action[2] + ")", end = " ")
+    
+    print()
+
+
