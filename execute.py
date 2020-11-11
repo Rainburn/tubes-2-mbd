@@ -29,7 +29,7 @@ def schedule_generator():
         else :
             jenis = findWriteRead()
         item = findItem(jumlah_item)
-        if str(dictionary[transaksi]) == str(jumlah_transaksi):
+        if str(dictionary[transaksi]) == str(jumlah_proses):
             jenis = "C"
             item = ""
             dictionary.pop(transaksi)
