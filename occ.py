@@ -6,6 +6,7 @@ def validateProtocol(array_transaksi):
   arr_TS = getArrTS(arr_num, array_transaksi)
   arr_operation = getTransactionOperation(array_transaksi, arr_num)
   occ(array_transaksi, arr_num, arr_TS, arr_operation)
+  return changePrintFormat(solved_item)
 
 def occ(array_transaksi, arr_num, arr_TS, arr_operation):
   # Check for all transaction
@@ -35,7 +36,6 @@ def occ(array_transaksi, arr_num, arr_TS, arr_operation):
 
     if(stop):
       rolledback_trans = []
-      print("stop")
       i = 0
       while i < len(solved_item):
         if (solved_item[i][1] == x):
@@ -46,10 +46,6 @@ def occ(array_transaksi, arr_num, arr_TS, arr_operation):
         i+=1
 
       array_transaksi = concatConcurrency(array_transaksi, rolledback_trans)
-
-      if(x=='7'):
-        print(array_transaksi)
-
       all_arr = solved_item + array_transaksi
       arr_TS = getArrTS(arr_num, all_arr)
       break
