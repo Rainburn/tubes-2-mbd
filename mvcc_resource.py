@@ -1,5 +1,3 @@
-# Might thinking using snapshot
-
 class Transaction :
 
     def __init__(self, ts):
@@ -342,4 +340,16 @@ def print_actions_in_order(actions) :
     
     print()
 
+def actions_in_order(actions) :
+
+    order = ""
+
+    for action in actions :
+        if (action[0] == "C") :
+            order = order + action[0] + str(action[1]) + "; "
+        
+        else :
+            order = order + action[0] + str(action[1]) + "(" + action[2] + "); "
+    
+    return order
 

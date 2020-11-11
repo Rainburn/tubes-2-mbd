@@ -2,6 +2,7 @@ import random
 import string
 from simple_locking import *
 from occ import *
+from mvcc import *
 import time
 
 
@@ -119,4 +120,14 @@ elif inputUser == "2":
     times = time.time() - start_time
     print(array_hasil)
     print("Exec time : " + str(times), end="\n")
-# else :
+
+elif inputUser == "3" :
+    print("Multiversion Timestamp")
+    print("Harap menunggu ...")
+    start_time = time.time()
+    array_hasil = multiversion_timestamp(array_transaksi)
+    print("Ordering dengan multiversion timestamp selesai")
+    times = time.time() - start_time
+    print(array_hasil)
+    print("Exec time : " + str(times), end="\n")
+    
