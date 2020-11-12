@@ -3,6 +3,7 @@ import random
 global solved_item
 solved_item = []
 
+# Mengekstrak data yang diperlukan untuk menjalankan OCC
 def validateProtocol(array_transaksi):
   iterasi = 0
   arr_num = getNumTransaction(array_transaksi)
@@ -11,14 +12,14 @@ def validateProtocol(array_transaksi):
   occ(array_transaksi, arr_num, arr_TS, arr_operation, iterasi)
   return changePrintFormat(solved_item)
 
+# Protocol OCC
 def occ(array_transaksi, arr_num, arr_TS, arr_operation, iterasi):
-  # Check for all transaction
   stop = False
+  # Menjalankan tiap transaksi
   while(len(array_transaksi)!=0):
     index = arr_num.index(array_transaksi[0][1])
     if(arr_TS[index][1] == iterasi):
       print("Transaksi", arr_TS[index][0], "Start")
-
     iterasi+=1
     if(array_transaksi[0][0] == 'R'):
       print("Transaksi", array_transaksi[0][1], "membaca item data", array_transaksi[0][2])
@@ -27,28 +28,33 @@ def occ(array_transaksi, arr_num, arr_TS, arr_operation, iterasi):
       print("Transaksi", array_transaksi[0][1], "menulis item data", array_transaksi[0][2], "ke lokal variabel")
       solved_item.append(array_transaksi.pop(0))
 
+    # Jika transaksi akan commit, transaksi tersebut divalidasi
     elif(array_transaksi[0][0] == 'C'):
       print()
       x = array_transaksi[0][1]
       print('Melakukan Validasi Transaksi :', x)
       isValidThisTrans = isValidTransaction(array_transaksi, x, arr_TS, arr_num, arr_operation)
+
+      # Jika validasi berhasil, data local akan ditulis ke dalam DB, transaksi akan commit dan selesai
       if(isValidThisTrans):
         print("Transaksi", x, "lolos validasi, menuliskan data ke db dan commit")
         print("Transaksi", x, "Selesai\n")
+      
+      # Jika validasi gagal, maka akan di rollback dan berjalan secara konkuren dengan transaksi yang belum dieksekusi
       else:
         print("Transaksi", x, "gagal")
         print("Transasksi di-rollback, berjalan secara konkuren dengan transaksi yang lain\n")
         stop = True
       solved_item.append(array_transaksi.pop(0))
 
-
+    # Jika rollback maka transaksi akan akan dihapus dari array penyelesaian
+    # Akan dijalankan secara konkuren dengan transaksi lain 
     if(stop):
       rolledback_trans = []
       i = 0
       while i < len(solved_item):
         if (solved_item[i][1] == x):
           rolledback_trans.append(solved_item[i])
-          # array_transaksi.append(solved_item[i])
           solved_item.remove(solved_item[i])
           i -=1
         i+=1
@@ -57,34 +63,13 @@ def occ(array_transaksi, arr_num, arr_TS, arr_operation, iterasi):
       all_arr = solved_item + array_transaksi
       arr_TS = getArrTS(arr_num, all_arr)
       break
-
+  
+  # Jika masih ada transaksi yang harus dijalankan
   if(len(array_transaksi)!=0):
     occ(array_transaksi, arr_num, arr_TS, arr_operation, iterasi-len(rolledback_trans))
 
 
-def concatConcurrency(array_transaksi, rolledback_trans):
-  change_idx = True
-  interval = 2
-  idx = len(array_transaksi)//3
-  for x in reversed(rolledback_trans):
-    array_transaksi.insert(idx, x)
-    if(idx - interval > 0 and change_idx):
-      idx = idx - interval
-    change_idx = random.choice([True, False])
-  return array_transaksi
-
-def changePrintFormat(arr):
-  readable_format = ""
-  for x in arr:
-    activity = x[0] + x[1]
-    if(x[0] != 'C'):
-      activity += "(" +x[2] + "); " 
-    else:
-      activity += "; "
-    readable_format += activity
-  return readable_format
-  
-
+# Melalukan pengecekan apakah validasi berhasil atau tidak
 def isValidTransaction(arr, num, arr_TS, arr_num, arr_operation):
   isCurrentValid = True
   check_queue = []
@@ -108,9 +93,11 @@ def isValidTransaction(arr, num, arr_TS, arr_num, arr_operation):
     i+=1
   return isCurrentValid
 
+# Melakukan Perbandingan ValidateTS antara transaksi yang sedang divalidasi dengan transaksi yang 
+# memiliki ValidateTS lebih kecil darinya
 def compareTS(TI, TJ, arr_num, arr_operation):
+  # TJ adalah transaksi yang ingin divalidasi
   # finishTS(TI) < startTS(TJ)
-  # startTS = 1, finishTS = 2, validateTS = 3
   if (TI[2] < TJ[1]):
     print("Transaksi", str(TJ[0]), "mulai setelah Transaksi", str(TI[0]), "selesai")
     return True
@@ -127,10 +114,37 @@ def compareTS(TI, TJ, arr_num, arr_operation):
       else:
         print("Transaksi", str(TJ[0]), "membaca data yang dituliskan oleh Transaksi", str(TI[0]), "Menyebabkan kegagalan")
       return isNotIntersect
+    
+    # Jika tidak termasuk kedua kondisi di atas maka validasi gagal
     else:
       print("Pengecakan dengan transaksi", str(TI[0]),"Tidak memenuhi dua kondisi syarat validation based")
       return False
 
+# Memasukkan Transaksi yang di rollback ke shcedule yang sedang berjalan
+def concatConcurrency(array_transaksi, rolledback_trans):
+  change_idx = True
+  interval = 2
+  idx = len(array_transaksi)//3
+  for x in reversed(rolledback_trans):
+    array_transaksi.insert(idx, x)
+    if(idx - interval > 0 and change_idx):
+      idx = idx - interval
+    change_idx = random.choice([True, False])
+  return array_transaksi
+
+# Mencetak transasksi sesuai format yang ditentukan
+def changePrintFormat(arr):
+  readable_format = ""
+  for x in arr:
+    activity = x[0] + x[1]
+    if(x[0] != 'C'):
+      activity += "(" +x[2] + "); " 
+    else:
+      activity += "; "
+    readable_format += activity
+  return readable_format
+
+# Mengembalikan data yang di-read dan di-write oleh setiap transaksi
 def getTransactionOperation(arr, arr_num):
   arr_operation = []
   for i in range(len(arr_num)):
@@ -148,21 +162,22 @@ def getTransactionOperation(arr, arr_num):
   
   return arr_operation
 
-
+# Mendapatkan startTS dan validateTS dari transaksi
 def getArrTS(arr_num, array_transaksi):
   arr_TS = []
   for x in arr_num:
-    arr_TS.append((x, getStartTS(array_transaksi, x), getFinishTS(array_transaksi, x), getFinishTS(array_transaksi, x)))
+    arr_TS.append((x, getStartTS(array_transaksi, x), getCommitTS(array_transaksi, x), getCommitTS(array_transaksi, x)))
   return arr_TS
 
+# Mengembalikan array berisi nomor transaksi
 def getNumTransaction(arr):
-  # Mengembalikan array berisi nomor transaksi
   arr_num = []
   for x in arr:
     if x[1] not in arr_num:
       arr_num.append(x[1])
   return arr_num
 
+# Mendapatkan strat transaksi
 def getStartTS(arr, num):
   start = -1
   i = 0
@@ -174,7 +189,8 @@ def getStartTS(arr, num):
     i+=1
   return start
 
-def getFinishTS(arr, num):
+# Mengembalikan Commit transaksi
+def getCommitTS(arr, num):
   finish = -1
   i = 0
   stop = False
@@ -185,23 +201,3 @@ def getFinishTS(arr, num):
         stop = True
     i+=1
   return finish
-
-def getValidateTS(arr, num):
-  # Mengembalikan index untuk validasi dari transaksi num pada arr
-  last_read = -1
-  first_write = -1
-  i = 0
-  write_exists = False
-  while i < len(arr) and not write_exists:
-    if (arr[i][1] == str(num)):
-      if (arr[i][0] == 'R'):
-        last_read = i
-      elif (arr[i][0] == 'W'):
-        first_write = i
-        write_exists = True
-    i+=1
-
-  if (last_read != -1):
-    return last_read + 1
-  else:
-    return first_write
