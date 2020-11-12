@@ -4,16 +4,22 @@ global solved_item
 solved_item = []
 
 def validateProtocol(array_transaksi):
+  iterasi = 0
   arr_num = getNumTransaction(array_transaksi)
   arr_TS = getArrTS(arr_num, array_transaksi)
   arr_operation = getTransactionOperation(array_transaksi, arr_num)
-  occ(array_transaksi, arr_num, arr_TS, arr_operation)
+  occ(array_transaksi, arr_num, arr_TS, arr_operation, iterasi)
   return changePrintFormat(solved_item)
 
-def occ(array_transaksi, arr_num, arr_TS, arr_operation):
+def occ(array_transaksi, arr_num, arr_TS, arr_operation, iterasi):
   # Check for all transaction
   stop = False
   while(len(array_transaksi)!=0):
+    index = arr_num.index(array_transaksi[0][1])
+    if(arr_TS[index][1] == iterasi):
+      print("Transaksi", arr_TS[index][0], "Start")
+
+    iterasi+=1
     if(array_transaksi[0][0] == 'R'):
       print("Transaksi", array_transaksi[0][1], "membaca item data", array_transaksi[0][2])
       solved_item.append(array_transaksi.pop(0))
@@ -31,7 +37,7 @@ def occ(array_transaksi, arr_num, arr_TS, arr_operation):
         print("Transaksi", x, "Selesai\n")
       else:
         print("Transaksi", x, "gagal")
-        print("Transasksi di-rollback\n")
+        print("Transasksi di-rollback, berjalan secara konkuren dengan transaksi yang lain\n")
         stop = True
       solved_item.append(array_transaksi.pop(0))
 
@@ -53,7 +59,7 @@ def occ(array_transaksi, arr_num, arr_TS, arr_operation):
       break
 
   if(len(array_transaksi)!=0):
-    occ(array_transaksi, arr_num, arr_TS, arr_operation)
+    occ(array_transaksi, arr_num, arr_TS, arr_operation, iterasi-len(rolledback_trans))
 
 
 def concatConcurrency(array_transaksi, rolledback_trans):
