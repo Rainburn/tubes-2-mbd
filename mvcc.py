@@ -64,6 +64,7 @@ def multiversion_timestamp(array_transaksi):
 
     data = 1 # set data for write action
     # Lets evaluate the schedule
+    action_executed = []
     commit_waiting_list = []
     for action in actions :
         action_type = action[0]
@@ -83,6 +84,7 @@ def multiversion_timestamp(array_transaksi):
         if (action_type == "R") :
             qk = get_biggest_wts_res(res_name, ts_int, versions_of_resource)
             qk.read(t_act, versions_of_resource, transactions)
+            action_executed.append(action)
 
         # If Write
         elif (action_type == "W") :
@@ -94,9 +96,12 @@ def multiversion_timestamp(array_transaksi):
             if (new_resource):
                 versions_of_resource[res_idx][ts_int] = new_resource
             
+            action_executed.append(action)
+            
 
         elif (action_type == "A") : # Action is Abort
             t_act.abort()
+            action_executed.append(action)
 
 
         else : # Action type is Commit
@@ -105,6 +110,7 @@ def multiversion_timestamp(array_transaksi):
             if (is_commit_success):
                 # check if any trasaction can commit after this trasaction commit
                 affected_ts = t_act.get_affects()
+                action_executed.append(action)
 
                 if (len(commit_waiting_list) != 0) and (len(affected_ts) != 0):
                     for iter_affected_ts in affected_ts:
@@ -117,9 +123,13 @@ def multiversion_timestamp(array_transaksi):
                             commit_status = will_be_commited_ts.commit(transactions) 
                             if not(commit_status):
                                 commit_waiting_list.append(pop_act)
+                            else :
+                                action_executed.append(pop_act)
 
             else :
                 commit_waiting_list.append(action)
+            
+            
         
 
 
@@ -135,5 +145,21 @@ def multiversion_timestamp(array_transaksi):
                 actions.append(action)
 
     
+    # Get the schedule right
+    # Remove all actions of T from actions
+    for transaction in transactions :
+        if (transaction.get_rollback_status()):
+            timestamp = transaction.timestamp
+            filter_action = filter(lambda x: int(x[1]) != timestamp, action_executed)
+            action_executed = list(filter_action)
 
-    return actions_in_order(actions)
+
+    # Adding them all behind
+    for transaction in transactions :
+        if (transaction.get_rollback_status()):
+            for act in transaction.actions :
+                action_executed.append(act)
+        
+
+    return actions_in_order(action_executed)
+    #return actions_in_order(actions)
