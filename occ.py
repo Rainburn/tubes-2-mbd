@@ -1,7 +1,8 @@
 import random
 
-global solved_item
+global solved_item, local_dict
 solved_item = []
+local_dict = {}
 
 # Mengekstrak data yang diperlukan untuk menjalankan OCC
 def validateProtocol(array_transaksi):
@@ -26,6 +27,9 @@ def occ(array_transaksi, arr_num, arr_TS, arr_operation, iterasi):
       solved_item.append(array_transaksi.pop(0))
     elif(array_transaksi[0][0] == 'W'):
       print("Transaksi", array_transaksi[0][1], "menulis item data", array_transaksi[0][2], "ke lokal variabel")
+      if(array_transaksi[0][1] not in local_dict):
+        local_dict[array_transaksi[0][1]] = []
+      local_dict[array_transaksi[0][1]].append(array_transaksi[0][2])
       solved_item.append(array_transaksi.pop(0))
 
     # Jika transaksi akan commit, transaksi tersebut divalidasi
@@ -37,13 +41,16 @@ def occ(array_transaksi, arr_num, arr_TS, arr_operation, iterasi):
 
       # Jika validasi berhasil, data local akan ditulis ke dalam DB, transaksi akan commit dan selesai
       if(isValidThisTrans):
-        print("Transaksi", x, "lolos validasi, menuliskan data ke db dan commit")
-        print("Transaksi", x, "Selesai\n")
+        print("Transaksi", x, "lolos validasi")
+        if(x in local_dict):
+          print("Transaksi", x, "Menuliskan local variabel item", local_dict[x], "ke database")
+        print("Transaksi", x, "commit dan selesai\n")
       
       # Jika validasi gagal, maka akan di rollback dan berjalan secara konkuren dengan transaksi yang belum dieksekusi
       else:
         print("Transaksi", x, "gagal")
-        print("Transasksi di-rollback, berjalan secara konkuren dengan transaksi yang lain\n")
+        print("Transaksi di-rollback, berjalan secara konkuren dengan transaksi yang lain\n")
+        local_dict.pop(x)
         stop = True
       solved_item.append(array_transaksi.pop(0))
 
@@ -109,15 +116,16 @@ def compareTS(TI, TJ, arr_num, arr_operation):
       for i in range(len(arr_operation[arr_num.index(TJ[0])][1])):
         if(arr_operation[arr_num.index(TJ[0])][1][i] in arr_operation[arr_num.index(TI[0])][2]):
           isNotIntersect = False
+          intersect_item = arr_operation[arr_num.index(TJ[0])][1][i]
       if(isNotIntersect):
         print("Transaksi", str(TJ[0]), "tidak membaca data yang dituliskan oleh Transaksi", str(TI[0]))
       else:
-        print("Transaksi", str(TJ[0]), "membaca data yang dituliskan oleh Transaksi", str(TI[0]), "Menyebabkan kegagalan")
+        print("Transaksi", str(TJ[0]), "membaca data yang dituliskan oleh Transaksi", str(TI[0]), "yaitu item data",intersect_item, "(Menyebabkan kegagalan)")
       return isNotIntersect
     
     # Jika tidak termasuk kedua kondisi di atas maka validasi gagal
     else:
-      print("Pengecakan dengan transaksi", str(TI[0]),"Tidak memenuhi dua kondisi syarat validation based")
+      print("Pengecekan dengan transaksi", str(TI[0]),"Tidak memenuhi dua kondisi syarat validation based")
       return False
 
 # Memasukkan Transaksi yang di rollback ke shcedule yang sedang berjalan
