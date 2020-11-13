@@ -50,7 +50,8 @@ def occ(array_transaksi, arr_num, arr_TS, arr_operation, iterasi):
       else:
         print("Transaksi", x, "gagal")
         print("Transaksi di-rollback, berjalan secara konkuren dengan transaksi yang lain\n")
-        local_dict.pop(x)
+        if(x in local_dict): 
+          local_dict.pop(x)
         stop = True
       solved_item.append(array_transaksi.pop(0))
 
