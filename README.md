@@ -6,9 +6,11 @@ Kami membuat sistem concurrency control dengan protokol Simple lock Exclusive, O
 
 ## Cara menjalankan
 ```
-  1.  Buka CMD dan ketikkan execute.py
+  1.  Buka CMD pada root directory dan jalankan execute.py
   2.  Masukkan pilihan ingin menjalankan dengan masukkan data-input.txt atau dengan schedule generator
-  3.  Jika memilih dengan schedule generator, masukkan dataa berupa jumlah transaksi, jumlah proses per transaksi, dan jumlah item
+      a. Jika memilih masukan dari data-input.txt, ikuti format yang sudah tertulis pada file
+      b. Jika memilih dengan schedule generator, masukkan dataa berupa jumlah transaksi, jumlah proses per transaksi, dan jumlah item
+  3.  Pilih protocol concurrency yang ingin dijalankan
   4.  Output akan keluar
   
   ```
