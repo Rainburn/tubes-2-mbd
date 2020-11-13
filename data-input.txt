@@ -1,1 +1,1 @@
-R5(X); R2(Y); R1(Y); W3(Y); W3(Z); R5(Z); R2(Z); C2; R1(X); C1; R4(W); C4; W3(W); C3; W5(Y); W5(X); C5
+R5(X); R2(Y); R1(Y); W3(Y); W3(Z); R5(Z); R2(Z); C2; R1(X); C1; R4(W); C4; W3(W); C3; W5(Y); W5(X); C5;

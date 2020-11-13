@@ -77,6 +77,7 @@ pilihan = int(
 if pilihan == 1:
     file = open("data-input.txt", "r")
     myfile = file.read()
+    myfile = myfile[:-1]
     arr = myfile.split("; ")
 
     array_transaksi = []
