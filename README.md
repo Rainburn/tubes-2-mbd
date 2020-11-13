@@ -15,7 +15,10 @@ Kami membuat sistem concurrency control dengan protokol Simple lock Exclusive, O
   
   ```
  
-  ## Requirement
-  Python 3.7++
+## Requirement
+Python 3.7++
+
+## Kelompok 7 K3
+
   
   
